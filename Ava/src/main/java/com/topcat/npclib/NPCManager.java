@@ -260,5 +260,4 @@ public class NPCManager {
 	public NPCNetworkManager getNPCNetworkManager() {
 		return npcNetworkManager;
 	}
-
 }

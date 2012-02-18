@@ -2,9 +2,14 @@ package org.avateam.ava;
 
 import java.util.HashMap;
 
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -14,9 +19,33 @@ public class ChatListener implements Listener {
 	private Main plugin;
 	private HashMap<Player, Boolean> listen = new HashMap<Player, Boolean>();
 	private HashMap<Player, AvaNPC> has = new HashMap<Player, AvaNPC>();
+	public HashMap<LivingEntity, AvaNPC> targets = new HashMap<LivingEntity, AvaNPC>();
 	
 	public ChatListener(Main main) {
 		plugin = main;
+	}
+	
+	@EventHandler
+	public void hurt(EntityDamageEvent event) {
+		if(targets.containsKey(event.getEntity())) {
+			AvaNPC npc = targets.get(event.getEntity());
+			targets.remove(event.getEntity());
+			npc.stop(plugin);
+		}
+		if(plugin.nm.isNPC(event.getEntity())) {
+			//TODO: Negativing damage of mobs? only player does damage
+			if(event instanceof EntityDamageByEntityEvent) {
+				String id = plugin.nm.getNPCIdFromEntity(event.getEntity());
+				AvaNPC npc = (AvaNPC) plugin.nm.getNPC(id);
+				if(event.getCause() == DamageCause.PROJECTILE) {
+					LivingEntity target = ((Arrow) ((EntityDamageByEntityEvent) event).getDamager()).getShooter();
+					npc.attck(target, plugin);
+				} else if(event.getCause() == DamageCause.ENTITY_ATTACK){
+					LivingEntity target = (LivingEntity) ((EntityDamageByEntityEvent) event).getDamager();
+					npc.attck(target, plugin);
+				}
+			}
+		}
 	}
 	
 	@EventHandler
@@ -24,7 +53,11 @@ public class ChatListener implements Listener {
 		if(plugin.nm.isNPC(event.getEntity())) {
 			String id = plugin.nm.getNPCIdFromEntity(event.getEntity());
 			AvaNPC npc = (AvaNPC) plugin.nm.getNPC(id);
+			//TODO: Most likely cause for below error, but needed to stop Ava's actions
+			npc.stop(plugin);
 			has.remove(npc.getOwner());
+			//TODO: Causes Error with Arrows but without does not remove Ava
+			npc.removeFromWorld();
 		}
 	}
 	
@@ -37,6 +70,7 @@ public class ChatListener implements Listener {
 	
 	@EventHandler
 	public void checkMessage(PlayerChatEvent event) {
+		String[] parts = event.getMessage().split("[ ,.?!]+");
 		if(event.getMessage().equalsIgnoreCase("don't listen to me ava")) {
 			event.getPlayer().sendMessage("[Ava]: Okay, I will stop listening to you.");
 			listen.put(event.getPlayer(), false);
@@ -44,49 +78,59 @@ public class ChatListener implements Listener {
 			event.getPlayer().sendMessage("[Ava]: Okay, What do you want to tell me?");
 			listen.put(event.getPlayer(), true);
 		} 
-		if(listen.containsKey(event.getPlayer()) == false) {
-			listen.put(event.getPlayer(), true);
-			if(event.getMessage().equalsIgnoreCase("ava come here")) {
-				if(has.containsKey(event.getPlayer()) == false) {
-					AvaNPC npc = (AvaNPC) plugin.nm.spawnAva(event.getPlayer().getLocation());
-					npc.setOwner(event.getPlayer());
-					has.put(event.getPlayer(), npc);
-					npc.chat("Coming!");
-				} else {
-					AvaNPC npc = has.get(event.getPlayer());
-					npc.moveTo(event.getPlayer().getLocation());
-					npc.chat("Coming!");
+		if(listen.containsKey(event.getPlayer()) == false) listen.put(event.getPlayer(), true);
+		if(listen.get(event.getPlayer()) == true) {
+			for(int i=0; i < parts.length; i++) {
+				if((i+1) < parts.length) {
+					String test = (parts[i] + " " + parts[i+1]);
+					if(test.equalsIgnoreCase("ava stop") || test.equalsIgnoreCase("stop ava")) {
+						if(has.containsKey(event.getPlayer()) == false) {
+							event.getPlayer().sendMessage(ChatColor.GRAY + "Wait... What am I thinking? She's not here.");
+							event.setCancelled(true);
+						} else {
+							AvaNPC npc = has.get(event.getPlayer());
+							npc.chat("Alright I'll stop.");
+							npc.stop(plugin);
+						}
+					}
 				}
-			} else if(event.getMessage().equalsIgnoreCase("ava chop wood")) {
-				if(has.containsKey(event.getPlayer()) == false) {
-					event.getPlayer().sendMessage(ChatColor.GRAY + "Wait... What am I thinking? She's not here.");
-					event.setCancelled(true);
-				} else {
-					//TODO: Bug with this mbl111, You will need to figure out why
-					//AvaNPC npc = has.get(event.getPlayer());
-					//npc.chop();
-				}
-			} else if(event.getMessage().equalsIgnoreCase("ava attack")) {
-				if(has.containsKey(event.getPlayer()) == false) {
-					event.getPlayer().sendMessage(ChatColor.GRAY + "Wait... What am I thinking? She's not here.");
-					event.setCancelled(true);
-				} else {
-					//TODO: Complete Attack Logic
-					AvaNPC npc = has.get(event.getPlayer());
-					npc.attck(event.getPlayer());
-				}
-			}
-		} else if(listen.get(event.getPlayer()) == true) {
-			if(event.getMessage().equalsIgnoreCase("ava come here")) {
-				if(has.containsKey(event.getPlayer()) == false) {
-					AvaNPC npc = (AvaNPC) plugin.nm.spawnAva(event.getPlayer().getLocation());
-					npc.setOwner(event.getPlayer());
-					has.put(event.getPlayer(), npc);
-					npc.chat("Coming!");
-				} else {
-					AvaNPC npc = has.get(event.getPlayer());
-					npc.moveTo(event.getPlayer().getLocation());
-					npc.chat("Coming!");
+				if((i+2) < parts.length) {
+					String test = (parts[i] + " " + parts[i+1] + " " + parts[i+2]);
+					if(test.equalsIgnoreCase("ava come here") || test.equalsIgnoreCase("come here ava")) {
+						if(has.containsKey(event.getPlayer()) == false) {
+							AvaNPC npc = (AvaNPC) plugin.nm.spawnAva(event.getPlayer().getLocation());
+							npc.setOwner(event.getPlayer());
+							has.put(event.getPlayer(), npc);
+							npc.chat("Coming!");
+						} else {
+							AvaNPC npc = has.get(event.getPlayer());
+							npc.moveTo(event.getPlayer().getLocation());
+							npc.chat("Coming!");
+						}
+					} else if(test.equalsIgnoreCase("ava chop wood") || test.equalsIgnoreCase("chop wood ava")) {
+						if(has.containsKey(event.getPlayer()) == false) {
+							event.getPlayer().sendMessage(ChatColor.GRAY + "Wait... What am I thinking? She's not here.");
+							event.setCancelled(true);
+						} else {
+							AvaNPC npc = has.get(event.getPlayer());
+							npc.chat("Alright I'll go get some wood.");
+							npc.chop();
+						}
+					} else if((parts[i] + " " + parts[i+1]).equalsIgnoreCase("ava fight") || (parts[i] + " " + parts[i+1]).equalsIgnoreCase("ava attack")) {
+						if(has.containsKey(event.getPlayer()) == false) {
+							event.getPlayer().sendMessage(ChatColor.GRAY + "Wait... What am I thinking? She's not here.");
+							event.setCancelled(true);
+						} else {
+							AvaNPC npc = has.get(event.getPlayer());
+							Player p = npc.getBukkitEntity().getServer().getPlayer(parts[i+2]);
+							if(p != null) {
+								npc.chat("Better Run " + p.getName() + "!");
+								npc.attck(p,plugin);
+							} else {
+								npc.chat("Who should I attack?");
+							}
+						}
+					}
 				}
 			}
 		}
