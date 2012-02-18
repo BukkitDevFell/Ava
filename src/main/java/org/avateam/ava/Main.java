@@ -1,4 +1,4 @@
-package team.avateam.ava;
+package org.avateam.ava;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;

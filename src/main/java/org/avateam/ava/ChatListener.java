@@ -1,4 +1,4 @@
-package team.avateam.ava;
+package org.avateam.ava;
 
 import java.util.HashMap;
 
@@ -69,6 +69,7 @@ public class ChatListener implements Listener {
 				sp.setSkin("http://s3.amazonaws.com/squirt/i4ecf2a7242e7952832826103242823282382812.png");
 			}
 		} else if(event.getMessage().equalsIgnoreCase("ava chop wood")) {
+			event.getPlayer().sendMessage(event.getPlayer().getLocation().getBlock().getBiome().name());
 			logic.ChopWood(npc);
 		}
 		if(listen.containsKey(event.getPlayer()) == false) {

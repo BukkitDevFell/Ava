@@ -50,7 +50,6 @@ public class NPCManager {
 		npcNetworkManager = new NPCNetworkManager();
 		NPCManager.plugin = plugin;
 		taskid = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-			@Override
 			public void run() {
 				HashSet<String> toRemove = new HashSet<String>();
 				for (String i : npcs.keySet()) {

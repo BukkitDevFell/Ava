@@ -72,10 +72,8 @@ public class NPC {
 
 	public void walkTo(final Location l, final int maxIterations) {
 		pathFindTo(l, maxIterations, new PathReturn() {
-			@Override
 			public void run(NPCPath path) {
 				usePath(path, new Runnable() {
-					@Override
 					public void run() {
 						walkTo(l, maxIterations);
 					}
@@ -86,7 +84,6 @@ public class NPC {
 
 	public void usePath(NPCPath path) {
 		usePath(path, new Runnable() {
-			@Override
 			public void run() {
 				walkTo(runningPath.getEnd(), 3000);
 			}
@@ -96,7 +93,6 @@ public class NPC {
 	public void usePath(NPCPath path, Runnable onFail) {
 		if (taskid == 0) {
 			taskid = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(NPCManager.plugin, new Runnable() {
-				@Override
 				public void run() {
 					pathStep();
 				}
