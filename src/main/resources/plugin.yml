@@ -1,5 +1,5 @@
 name: Ava
-main: org.avateam.ava.Main
+main: org.avateam.ava.AvaPlugin
 version: 1.0
 description: >
              Ava - Words have Power.
