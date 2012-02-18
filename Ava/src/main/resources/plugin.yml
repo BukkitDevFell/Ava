@@ -5,3 +5,4 @@ description: >
              Ava - Words have Power.
 author: Fell
 authors: [SirTyler,AlbireoX,mbl111,tips48,iMint,KaiBB]
+depend: [SpoutPlugin]
