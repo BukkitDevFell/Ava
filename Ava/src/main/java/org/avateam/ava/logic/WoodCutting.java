@@ -1,4 +1,4 @@
-package org.avateam.ava.Resource;
+package org.avateam.ava.logic;
 
 import org.bukkit.Location;
 import org.bukkit.block.Biome;

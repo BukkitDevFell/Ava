@@ -13,6 +13,7 @@ import net.minecraft.server.Entity;
 import net.minecraft.server.ItemInWorldManager;
 import net.minecraft.server.WorldServer;
 
+import org.avateam.ava.AvaNPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -37,8 +38,8 @@ import com.topcat.npclib.nms.NPCNetworkManager;
  */
 public class NPCManager {
 
-	private HashMap<String, NPC> npcs = new HashMap<String, NPC>();
-	private BServer server;
+	protected HashMap<String, NPC> npcs = new HashMap<String, NPC>();
+	protected BServer server;
 	private int taskid;
 	private Map<World, BWorld> bworlds = new HashMap<World, BWorld>();
 	private NPCNetworkManager npcNetworkManager;
@@ -128,6 +129,29 @@ public class NPCManager {
 			npcEntity.setPositionRotation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
 			world.getWorldServer().addEntity(npcEntity); //the right way
 			NPC npc = new HumanNPC(npcEntity);
+			npcs.put(id, npc);
+			return npc;
+		}
+	}
+	public NPC spawnAva(Location l) {
+		int i = 0;
+		String id = "Ava";
+		while (npcs.containsKey(id)) {
+			id = "Ava" + i;
+			i++;
+		}
+		return spawnAva(l, id);
+	}
+	public NPC spawnAva(Location l, String id) {
+		if (npcs.containsKey(id)) {
+			server.getLogger().log(Level.WARNING, "NPC with that id already exists, existing NPC returned");
+			return npcs.get(id);
+		} else {
+			BWorld world = getBWorld(l.getWorld());
+			NPCEntity npcEntity = new NPCEntity(this, world, "Ava", new ItemInWorldManager(world.getWorldServer()));
+			npcEntity.setPositionRotation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+			world.getWorldServer().addEntity(npcEntity); //the right way
+			AvaNPC npc = new AvaNPC(npcEntity);
 			npcs.put(id, npc);
 			return npc;
 		}
