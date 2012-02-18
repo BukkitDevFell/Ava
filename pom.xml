@@ -20,6 +20,11 @@
             <name>bukkit</name>
             <url>http://repo.bukkit.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>spout</id>
+            <name>spout</name>
+            <url>http://nexus.spout.org/content/groups/public/</url>
+        </repository>
     </repositories>
     
     <dependencies>
@@ -31,8 +36,13 @@
         </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
+            <artifactId>craftbukkit</artifactId>
             <version>1.1-R1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.getspout</groupId>
+            <artifactId>spoutplugin</artifactId>
+            <version>dev-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
