@@ -33,7 +33,7 @@ public class ChatListener implements Listener {
 			npc.stop(plugin);
 		}
 		if(plugin.nm.isNPC(event.getEntity())) {
-			//TODO: Negating damage of mobs? only player does damage
+			//TODO: Damaged for first life, all following lives take no damage?
 			if(event instanceof EntityDamageByEntityEvent) {
 				String id = plugin.nm.getNPCIdFromEntity(event.getEntity());
 				AvaNPC npc = (AvaNPC) plugin.nm.getNPC(id);

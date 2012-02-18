@@ -25,7 +25,7 @@ public class AttackTarget extends Thread implements Runnable {
 		} else {
 			npc.lookAtPoint(target.getLocation());
 			npc.animateArmSwing();
-			target.damage(4, npc.getBukkitEntity());
+			target.damage(npc.getDamage(), npc.getBukkitEntity());
 			if(target.isDead()) npc.stop(plugin);
 		}
 	}
