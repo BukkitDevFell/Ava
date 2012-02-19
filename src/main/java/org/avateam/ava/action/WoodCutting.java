@@ -19,7 +19,7 @@ public class WoodCutting extends SimpleAction {
 			loc = npc.getBukkitEntity().getLocation();
 			npcCurrentBiome = loc.getBlock().getBiome();
 		}
-
+		
 		//wood search code, If not found she walks 16? blocks and does this action again?
 	}
 	
